@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Discord;
 using NadekoBot.Extensions;
 using Newtonsoft.Json;
@@ -9,9 +9,11 @@ namespace NadekoBot.Common
     public class CREmbed
     {
         private static readonly Logger _log;
+        public CREmbedAuthor Author { get; set; }
         public string PlainText { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string Url { get; set; }
         public CREmbedFooter Footer { get; set; }
         public string Thumbnail { get; set; }
         public string Image { get; set; }
@@ -26,6 +28,7 @@ namespace NadekoBot.Common
         public bool IsValid =>
             !string.IsNullOrWhiteSpace(Title) ||
             !string.IsNullOrWhiteSpace(Description) ||
+            !string.IsNullOrWhiteSpace(Url) ||
             !string.IsNullOrWhiteSpace(Thumbnail) ||
             !string.IsNullOrWhiteSpace(Image) ||
             (Footer != null && (!string.IsNullOrWhiteSpace(Footer.Text) || !string.IsNullOrWhiteSpace(Footer.IconUrl))) ||
@@ -39,6 +42,8 @@ namespace NadekoBot.Common
                 embed.WithTitle(Title);
             if (!string.IsNullOrWhiteSpace(Description))
                 embed.WithDescription(Description);
+            if (Url != null && Uri.IsWellFormedUriString(Url, UriKind.Absolute))
+                embed.WithUrl(Url);
             embed.WithColor(new Discord.Color(Color));
             if (Footer != null)
                 embed.WithFooter(efb =>
@@ -52,6 +57,15 @@ namespace NadekoBot.Common
                 embed.WithThumbnailUrl(Thumbnail);
             if(Image != null && Uri.IsWellFormedUriString(Image, UriKind.Absolute))
                 embed.WithImageUrl(Image);
+            if (Author != null && !string.IsNullOrWhiteSpace(Author.Name))
+            {
+                if (!Uri.IsWellFormedUriString(Author.IconUrl, UriKind.Absolute))
+                    Author.IconUrl = null;
+                if (!Uri.IsWellFormedUriString(Author.Url, UriKind.Absolute))
+                    Author.Url = null;
+
+                embed.WithAuthor(Author.Name, Author.IconUrl, Author.Url);
+            }
 
             if (Fields != null)
                 foreach (var f in Fields)
@@ -102,5 +116,15 @@ namespace NadekoBot.Common
     public class CREmbedFooter {
         public string Text { get; set; }
         public string IconUrl { get; set; }
+        [JsonProperty("icon_url")]
+        private string Icon_Url { set => IconUrl = value; }
+    }
+    public class CREmbedAuthor
+    {
+        public string Name { get; set; }
+        public string IconUrl { get; set; }
+        [JsonProperty("icon_url")]
+        private string Icon_Url { set => IconUrl = value; }
+        public string Url { get; set; }
     }
 }

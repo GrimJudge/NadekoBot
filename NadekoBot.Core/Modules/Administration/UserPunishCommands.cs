@@ -122,7 +122,7 @@ namespace NadekoBot.Modules.Administration
 
                         embed.AddField(x => x
                             .WithName(name)
-                            .WithValue(w.Reason));
+                            .WithValue(w.Reason.TrimTo(1020)));
                     }
                 }
 
@@ -286,7 +286,7 @@ namespace NadekoBot.Modules.Administration
                     }
                 }
 
-                await Context.Guild.AddBanAsync(user, 7).ConfigureAwait(false);
+                await Context.Guild.AddBanAsync(user, 7, msg).ConfigureAwait(false);
                 await Context.Channel.EmbedAsync(new EmbedBuilder().WithOkColor()
                         .WithTitle("⛔️ " + GetText("banned_user"))
                         .AddField(efb => efb.WithName(GetText("username")).WithValue(user.ToString()).WithIsInline(true))
@@ -395,7 +395,7 @@ namespace NadekoBot.Modules.Administration
                     catch { }
                 }
 
-                await user.KickAsync().ConfigureAwait(false);
+                await user.KickAsync(msg).ConfigureAwait(false);
                 await Context.Channel.EmbedAsync(new EmbedBuilder().WithOkColor()
                         .WithTitle(GetText("kicked_user"))
                         .AddField(efb => efb.WithName(GetText("username")).WithValue(user.ToString()).WithIsInline(true))
@@ -465,7 +465,7 @@ namespace NadekoBot.Modules.Administration
                             Type = BlacklistType.User,
                         }));
                     //clear their currencies
-                    uow.Currency.RemoveFromMany(found.Select(x => (long)x).ToList());
+                    uow.DiscordUsers.RemoveFromMany(found.Select(x => (long)x).ToList());
                     uow.Complete();
                 }
 

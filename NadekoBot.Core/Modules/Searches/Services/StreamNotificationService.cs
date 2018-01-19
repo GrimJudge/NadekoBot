@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using NadekoBot.Extensions;
 using NadekoBot.Core.Services;
@@ -19,7 +19,6 @@ namespace NadekoBot.Modules.Searches.Services
 {
     public class StreamNotificationService : INService
     {
-        private readonly Timer _streamCheckTimer;
         private bool firstStreamNotifPass { get; set; } = true;
         private readonly ConcurrentDictionary<string, IStreamResponse> _cachedStatuses = new ConcurrentDictionary<string, IStreamResponse>();
         private readonly DbService _db;
@@ -33,52 +32,58 @@ namespace NadekoBot.Modules.Searches.Services
             _client = client;
             _strings = strings;
             _http = new HttpClient();
-            _streamCheckTimer = new Timer(async (state) =>
-            {
-                var oldCachedStatuses = new ConcurrentDictionary<string, IStreamResponse>(_cachedStatuses);
-                _cachedStatuses.Clear();
-                IEnumerable<FollowedStream> streams;
-                using (var uow = _db.UnitOfWork)
-                {
-                    streams = uow.GuildConfigs.GetAllFollowedStreams(client.Guilds.Select(x => (long)x.Id).ToList());
-                }
+#if !GLOBAL_NADEKO
+            var _ = Task.Run(async () =>
+           {
+               while (true)
+               {
+                   await Task.Delay(60000);
+                   var oldCachedStatuses = new ConcurrentDictionary<string, IStreamResponse>(_cachedStatuses);
+                   _cachedStatuses.Clear();
+                   IEnumerable<FollowedStream> streams;
+                   using (var uow = _db.UnitOfWork)
+                   {
+                       streams = uow.GuildConfigs.GetAllFollowedStreams(client.Guilds.Select(x => (long)x.Id).ToList());
+                   }
 
-                await Task.WhenAll(streams.Select(async fs =>
-                {
-                    try
+                   await Task.WhenAll(streams.Select(async fs =>
                     {
-                        var newStatus = await GetStreamStatus(fs).ConfigureAwait(false);
-                        if (firstStreamNotifPass)
+                        try
                         {
-                            return;
-                        }
-
-                        IStreamResponse oldResponse;
-                        if (oldCachedStatuses.TryGetValue(newStatus.Url, out oldResponse) &&
-                            oldResponse.Live != newStatus.Live)
-                        {
-                            var server = _client.GetGuild(fs.GuildId);
-                            var channel = server?.GetTextChannel(fs.ChannelId);
-                            if (channel == null)
+                            var newStatus = await GetStreamStatus(fs).ConfigureAwait(false);
+                            if (firstStreamNotifPass)
+                            {
                                 return;
-                            try
-                            {
-                                await channel.EmbedAsync(GetEmbed(fs, newStatus, channel.Guild.Id)).ConfigureAwait(false);
                             }
-                            catch
+
+                            IStreamResponse oldResponse;
+                            if (oldCachedStatuses.TryGetValue(newStatus.Url, out oldResponse) &&
+                            oldResponse.Live != newStatus.Live)
                             {
+                                var server = _client.GetGuild(fs.GuildId);
+                                var channel = server?.GetTextChannel(fs.ChannelId);
+                                if (channel == null)
+                                    return;
+                                try
+                                {
+                                    await channel.EmbedAsync(GetEmbed(fs, newStatus, channel.Guild.Id)).ConfigureAwait(false);
+                                }
+                                catch
+                                {
                                 // ignored
                             }
+                            }
                         }
-                    }
-                    catch
-                    {
+                        catch
+                        {
                         // ignored
                     }
-                }));
+                    }));
 
-                firstStreamNotifPass = false;
-            }, null, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(60));
+                   firstStreamNotifPass = false;
+               }
+           });
+#endif
         }
 
         public async Task<IStreamResponse> GetStreamStatus(FollowedStream stream, bool checkCache = true)
@@ -126,6 +131,17 @@ namespace NadekoBot.Modules.Searches.Services
                     bmData.Url = beamUrl;
                     _cachedStatuses.AddOrUpdate(beamUrl, bmData, (key, old) => bmData);
                     return bmData;
+                case FollowedStream.FollowedStreamType.Picarto:
+                    var picartoUrl = $"https://api.picarto.tv/v1/channel/name/{stream.Username.ToLowerInvariant()}";
+                    if (checkCache && _cachedStatuses.TryGetValue(picartoUrl, out result))
+                        return result;
+
+                    var paResponse = await _http.GetAsync(picartoUrl).ConfigureAwait(false);
+                    if(!paResponse.IsSuccessStatusCode)
+                        throw new StreamNotFoundException($"{stream.Username} [{stream.Type}]");
+                    var paData = JsonConvert.DeserializeObject<PicartoResponse>(await paResponse.Content.ReadAsStringAsync());
+                    _cachedStatuses.AddOrUpdate(picartoUrl, paData, (key, old) => paData);
+                    return paData;
                 default:
                     break;
             }
@@ -155,7 +171,7 @@ namespace NadekoBot.Modules.Searches.Services
                                 true);
 
             embed.AddField(GetText(fs, "followers"),
-                            status.FollowerCount.ToString(),
+                            status.Followers.ToString(),
                             true);
 
             if (!string.IsNullOrWhiteSpace(status.Icon))
@@ -178,6 +194,8 @@ namespace NadekoBot.Modules.Searches.Services
                 return $"https://www.twitch.tv/{fs.Username}/";
             if (fs.Type == FollowedStream.FollowedStreamType.Mixer)
                 return $"https://www.mixer.com/{fs.Username}/";
+            if (fs.Type == FollowedStream.FollowedStreamType.Picarto)
+                return $"https://www.picarto.tv/{fs.Username}";
             return "??";
         }
     }

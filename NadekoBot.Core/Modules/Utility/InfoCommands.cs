@@ -76,7 +76,7 @@ namespace NadekoBot.Modules.Utility
                 if (ch == null)
                     return;
                 var createdAt = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(ch.Id >> 22);
-                var usercount = (await ch.GetUsersAsync().Flatten()).Count();
+                var usercount = (await ch.GetUsersAsync().FlattenAsync()).Count();
                 var embed = new EmbedBuilder()
                     .WithTitle(ch.Name)
                     .WithDescription(ch.Topic?.SanitizeMentions())
@@ -118,7 +118,7 @@ namespace NadekoBot.Modules.Utility
             [OwnerOnly]
             public async Task Activity(int page = 1)
             {
-                const int activityPerPage = 15;
+                const int activityPerPage = 10;
                 page -= 1;
 
                 if (page < 0)
