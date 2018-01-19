@@ -18,18 +18,18 @@ namespace NadekoBot.Modules.Gambling
     {
         public enum ClaimTitles
         {
-            Lonely,
-            Devoted,
-            Rookie,
-            Schemer,
-            Dilettante,
-            Intermediate,
-            Seducer,
-            Expert,
-            Veteran,
-            Incubis,
-            Harem_King,
-            Harem_God,
+            Lost_Soul,
+            Dream_Demon,
+            Rookie_Reaper,
+            Scheming_Soul,
+            Dilettante_Dullahan,
+            Intermediate_Reaper,
+            Seductive_Succubus,
+            Expert_Reaper,
+            Veteran_Reaper,
+            Incubus,
+            Soulless_King,
+            Soulless_God,
         }
 
         public enum AffinityTitles
@@ -41,7 +41,7 @@ namespace NadekoBot.Modules.Gambling
             Tainted,
             Corrupted,
             Lewd,
-            Sloot,
+            Slut,
             Depraved,
             Harlot
         }
@@ -462,14 +462,14 @@ namespace NadekoBot.Modules.Gambling
                 var nobody = GetText("nobody");
                 var embed = new EmbedBuilder()
                     .WithOkColor()
-                    .WithTitle("Waifu " + w.Waifu + " - \"the " + claimInfo.Title + "\"")
+                    .WithTitle(w.Waifu + " - \"the " + claimInfo.Title + "\"")
                     .AddField(efb => efb.WithName(GetText("price")).WithValue(w.Price.ToString()).WithIsInline(true))
                     .AddField(efb => efb.WithName(GetText("claimed_by")).WithValue(w.Claimer?.ToString() ?? nobody).WithIsInline(true))
                     .AddField(efb => efb.WithName(GetText("likes")).WithValue(w.Affinity?.ToString() ?? nobody).WithIsInline(true))
                     .AddField(efb => efb.WithName(GetText("changes_of_heart")).WithValue($"{affInfo.Count} - \"the {affInfo.Title}\"").WithIsInline(true))
                     .AddField(efb => efb.WithName(GetText("divorces")).WithValue(divorces.ToString()).WithIsInline(true))
                     .AddField(efb => efb.WithName(GetText("gifts")).WithValue(!w.Items.Any() ? "-" : string.Join("\n", w.Items.OrderBy(x => x.Price).GroupBy(x => x.ItemEmoji).Select(x => $"{x.Key} x{x.Count()}"))).WithIsInline(false))
-                    .AddField(efb => efb.WithName($"Waifus ({claims.Count})").WithValue(claims.Count == 0 ? nobody : string.Join("\n", claims.OrderBy(x => rng.Next()).Take(30).Select(x => x.Waifu))).WithIsInline(false));
+                    .AddField(efb => efb.WithName($"Souls ({claims.Count})").WithValue(claims.Count == 0 ? nobody : string.Join("\n", claims.OrderBy(x => rng.Next()).Take(30).Select(x => x.Waifu))).WithIsInline(true));
 
                 await Context.Channel.EmbedAsync(embed).ConfigureAwait(false);
             }
@@ -571,29 +571,29 @@ namespace NadekoBot.Modules.Gambling
 
                 ClaimTitles title;
                 if (count == 0)
-                    title = ClaimTitles.Lonely;
+                    title = ClaimTitles.Lost_Soul;
                 else if (count == 1)
-                    title = ClaimTitles.Devoted;
+                    title = ClaimTitles.Dream_Demon;
                 else if (count < 4)
-                    title = ClaimTitles.Rookie;
+                    title = ClaimTitles.Rookie_Reaper;
                 else if (count < 6)
-                    title = ClaimTitles.Schemer;
+                    title = ClaimTitles.Scheming_Soul;
                 else if (count < 8)
-                    title = ClaimTitles.Dilettante;
+                    title = ClaimTitles.Dilettante_Dullahan;
                 else if (count < 10)
-                    title = ClaimTitles.Intermediate;
+                    title = ClaimTitles.Intermediate_Reaper;
                 else if (count < 12)
-                    title = ClaimTitles.Seducer;
+                    title = ClaimTitles.Seductive_Succubus;
                 else if (count < 15)
-                    title = ClaimTitles.Expert;
+                    title = ClaimTitles.Expert_Reaper;
                 else if (count < 17)
-                    title = ClaimTitles.Veteran;
+                    title = ClaimTitles.Veteran_Reaper;
                 else if (count < 25)
-                    title = ClaimTitles.Incubis;
+                    title = ClaimTitles.Incubus;
                 else if (count < 50)
-                    title = ClaimTitles.Harem_King;
+                    title = ClaimTitles.Soulless_King;
                 else
-                    title = ClaimTitles.Harem_God;
+                    title = ClaimTitles.Soulless_God;
 
                 return new WaifuProfileTitle(count, title.ToString().Replace('_', ' '));
             }
@@ -625,7 +625,7 @@ namespace NadekoBot.Modules.Gambling
                 else if (count < 13)
                     title = AffinityTitles.Lewd;
                 else if (count < 15)
-                    title = AffinityTitles.Sloot;
+                    title = AffinityTitles.Slut;
                 else if (count < 17)
                     title = AffinityTitles.Depraved;
                 else

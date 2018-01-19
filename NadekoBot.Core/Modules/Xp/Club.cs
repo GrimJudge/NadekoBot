@@ -129,9 +129,9 @@ namespace NadekoBot.Modules.Xp
                             .Select(x => 
                             {
                                 if (club.OwnerId == x.Id)
-                                    return x.ToString() + "🌟";
+                                    return x.ToString() + "💀";
                                 else if (x.IsClubAdmin)
-                                    return x.ToString() + "⭐";
+                                    return x.ToString() + "☠️";
                                 return x.ToString();
                             })), false);
 

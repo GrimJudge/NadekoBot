@@ -226,7 +226,7 @@
     "gambling_br_win": "Congratulations! You won {0} for rolling above {1}",
     "gambling_deck_reshuffled": "Deck reshuffled.",
     "gambling_flipped": "flipped {0}.",
-    "gambling_flip_guess": "You guessed it! You won {0}",
+    "gambling_flip_guess": "You won this time, but don't get cocky. You won {0}",
     "gambling_flip_invalid": "Invalid number specified. You can flip 1 to {0} coins.",
     "gambling_flowerreaction_desc": "Add {0} reaction to this message to get {1} ",
     "gambling_flowerreaction_footer": "This event is active for up to {0} hours.",

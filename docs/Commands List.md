@@ -149,7 +149,7 @@ Command and aliases | Description | Usage
 `.timelyreset` | Resets all user timeouts on `.timely` command. **Bot Owner Only** | `.timelyreset`
 `.timelyset` | Sets the 'timely' currency allowance amount for users. Second argument is period in hours, default is 24 hours. **Bot Owner Only** | `.timelyset 100` or `.timelyset 50 12`
 `.raffle` | Prints a name and ID of a random user from the online list from the (optional) role.  | `.raffle` or `.raffle RoleName`
-`.$` `.currency` `.$$` `.$$$` `.cash` `.cur` | Check how much currency a person has. (Defaults to yourself)  | `.$` or `.$ @SomeGuy`
+`.$` `.currency` `.$$` `.$$$` `.souls` `.cur` | Check how much currency a person has. (Defaults to yourself)  | `.$` or `.$ @SomeGuy`
 `.give` | Give someone a certain amount of currency.  | `.give 1 @SomeGuy`
 `.award` | Awards someone a certain amount of currency.  You can also specify a role name to award currency to all users in a role. **Bot Owner Only** | `.award 100 @person` or `.award 5 Role Of Gamblers`
 `.take` | Takes a certain amount of currency from someone. **Bot Owner Only** | `.take 1 @SomeGuy`
@@ -175,13 +175,13 @@ Command and aliases | Description | Usage
 `.slotstats` | Shows the total stats of the slot command for this bot's session. **Bot Owner Only** | `.slotstats`
 `.slottest` | Tests to see how much slots payout for X number of plays. **Bot Owner Only** | `.slottest 1000`
 `.slot` | Play Nadeko slots. Max bet is 9999. 1.5 second cooldown per user.  | `.slot 5`
-`.claimwaifu` `.claim` | Claim a waifu for yourself by spending currency.  You must spend at least 10% more than her current value unless she set `.affinity` towards you.  | `.claim 50 @Himesama`
-`.waifutransfer` | Transfer the ownership of one of your waifus to another user. You must pay 10% of your waifu's value.  | `.waifutransfer @ExWaifu @NewOwner`
-`.divorce` | Releases your claim on a specific waifu. You will get some of the money you've spent back unless that waifu has an affinity towards you. 6 hours cooldown.  | `.divorce @CheatingSloot`
+`.claimsoul` `.claim` | Claim a waifu for yourself by spending currency.  You must spend at least 10% more than her current value unless she set `.affinity` towards you.  | `.claim 50 @Himesama`
+`.soultransfer` | Transfer the ownership of one of your waifus to another user. You must pay 10% of your waifu's value.  | `.soultransfer @ExWaifu @NewOwner`
+`.soulrelease` | Releases your claim on a specific waifu. You will get some of the money you've spent back unless that waifu has an affinity towards you. 0 hours cooldown.  | `.divorce @CheatingSloot`
 `.affinity` | Sets your affinity towards someone you want to be claimed by. Setting affinity will reduce their `.claim` on you by 20%. You can leave second argument empty to clear your affinity. 30 minutes cooldown.  | `.affinity @MyHusband` or `.affinity`
-`.waifus` `.waifulb` | Shows top 9 waifus. You can specify another page to show other waifus.  | `.waifus` or `.waifulb 3`
-`.waifuinfo` `.waifustats` | Shows waifu stats for a target person. Defaults to you if no user is provided.  | `.waifuinfo @MyCrush` or `.waifuinfo`
-`.waifugift` `.gift` `.gifts` | Gift an item to someone. This will increase their waifu value by 50% of the gifted item's value if they don't have affinity set towards you, or 100% if they do. Provide no arguments to see a list of items that you can gift.  | `.gifts` or `.gift Rose @Himesama`
+`.souls` `.soullb` | Shows top 9 waifus. You can specify another page to show other waifus.  | `.waifus` or `.waifulb 3`
+`.soulinfo` `.soulstats` | Shows waifu stats for a target person. Defaults to you if no user is provided.  | `.waifuinfo @MyCrush` or `.soulinfo`
+`.soulgift` `.gift` `.gifts` | Gift an item to someone. This will increase their waifu value by 50% of the gifted item's value if they don't have affinity set towards you, or 100% if they do. Provide no arguments to see a list of items that you can gift.  | `.gifts` or `.gift Rose @Himesama`
 `.wheeloffortune` `.wheel` | Bets a certain amount of currency on the wheel of fortune. Wheel can stop on one of many different multipliers. Won amount is rounded down to the nearest whole number.  | `.wheel 10`
 
 ###### [Back to ToC](#table-of-contents)
@@ -202,8 +202,8 @@ Command and aliases | Description | Usage
 `.hangman` | Starts a game of hangman in the channel. Use `.hangmanlist` to see a list of available term types. Defaults to 'all'.  | `.hangman` or `.hangman movies`
 `.hangmanstop` | Stops the active hangman game on this channel if it exists.  | `.hangmanstop`
 `.nunchi` | Creates or joins an existing nunchi game. Users have to count up by 1 from the starting number shown by the bot. If someone makes a mistake (types an incorrent number, or repeats the same number) they are out of the game and a new round starts without them.  Minimum 3 users required.  | `.nunchi`
-`.pick` | Picks the currency planted in this channel. 60 seconds cooldown.  | `.pick`
-`.plant` | Spend an amount of currency to plant it in this channel. Default is 1. (If bot is restarted or crashes, the currency will be lost)  | `.plant` or `.plant 5`
+`.reap` | Picks the currency planted in this channel. 60 seconds cooldown.  | `.reap`
+`.release` | Spend an amount of currency to plant it in this channel. Default is 1. (If bot is restarted or crashes, the currency will be lost)  | `.release` or `.release 5`
 `.gencurrency` `.gc` | Toggles currency generation on this channel. Every posted message will have chance to spawn currency. Chance is specified by the Bot Owner. (default is 2%) **Requires ManageMessages server permission.** | `.gc`
 `.poll` `.ppoll` | Creates a public poll which requires users to type a number of the voting option in the channel command is ran in. **Requires ManageMessages server permission.** | `.ppoll Question?;Answer1;Answ 2;A_3`
 `.pollstats` | Shows the poll results without stopping the poll on this server. **Requires ManageMessages server permission.** | `.pollstats`
@@ -340,7 +340,7 @@ Command and aliases | Description | Usage
 `.movelist` `.ml` | Lists the moves you are able to use  | `.ml`
 `.heal` | Heals someone. Revives those who fainted. Costs one Currency.   | `.heal @someone`
 `.type` | Get the poketype of the target.  | `.type @someone`
-`.settype` | Set your poketype. Costs one Currency. Provide no arguments to see a list of available types.  | `.settype fire` or `.settype`
+`.setclass` | Set your poketype. Costs one Currency. Provide no arguments to see a list of available types.  | `.setclass fire` or `.setclass`
 
 ###### [Back to ToC](#table-of-contents)
 

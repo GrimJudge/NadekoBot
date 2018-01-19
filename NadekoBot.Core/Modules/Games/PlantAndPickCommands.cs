@@ -54,7 +54,7 @@ namespace NadekoBot.Modules.Games
 
                 await Task.WhenAll(msgs.Where(m => m != null).Select(toDelete => toDelete.DeleteAsync())).ConfigureAwait(false);
 
-                await _cs.AddAsync((IGuildUser)Context.User, $"Picked {_bc.BotConfig.CurrencyPluralName}", msgs.Count, false).ConfigureAwait(false);
+                await _cs.AddAsync((IGuildUser)Context.User, $"Reaped {_bc.BotConfig.CurrencyPluralName}", msgs.Count, false).ConfigureAwait(false);
                 var msg = await ReplyConfirmLocalized("picked", msgs.Count + _bc.BotConfig.CurrencySign)
                     .ConfigureAwait(false);
                 msg.DeleteAfter(10);
@@ -67,7 +67,7 @@ namespace NadekoBot.Modules.Games
                 if (amount < 1)
                     return;
 
-                var removed = await _cs.RemoveAsync((IGuildUser)Context.User, $"Planted a {_bc.BotConfig.CurrencyName}", amount, false).ConfigureAwait(false);
+                var removed = await _cs.RemoveAsync((IGuildUser)Context.User, $"Released a {_bc.BotConfig.CurrencyName}", amount, false).ConfigureAwait(false);
                 if (!removed)
                 {
                     await ReplyErrorLocalized("not_enough", _bc.BotConfig.CurrencySign).ConfigureAwait(false);

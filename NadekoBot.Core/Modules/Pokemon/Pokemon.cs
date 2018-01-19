@@ -277,7 +277,7 @@ namespace NadekoBot.Modules.Pokemon
             var targetType = StringToPokemonType(typeTargeted);
             if (targetType == null)
             {
-                await Context.Channel.EmbedAsync(_service.PokemonTypes.Aggregate(new EmbedBuilder().WithDescription("List of the available types:"), 
+                await Context.Channel.EmbedAsync(_service.PokemonTypes.Aggregate(new EmbedBuilder().WithDescription("List of the available classes:"), 
                         (eb, pt) => eb.AddField(efb => efb.WithName(pt.Name)
                                                           .WithValue(pt.Icon)
                                                           .WithIsInline(true)))

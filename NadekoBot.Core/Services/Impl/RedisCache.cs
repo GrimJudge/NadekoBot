@@ -105,7 +105,7 @@ namespace NadekoBot.Core.Services.Impl
             time = _db.KeyTimeToLive($"{_redisKey}_divorce_{userId}");
             if (time == null)
             {
-                time = TimeSpan.FromHours(6);
+                time = TimeSpan.FromHours(0);
                 _db.StringSet($"{_redisKey}_divorce_{userId}", true, time);
                 return true;
             }
