@@ -43,10 +43,12 @@ namespace NadekoBot.Modules.Administration
                 {"sv-SE", "Svenska, Sverige"},
                 {"tr-TR", "Türkçe, Türkiye"},
                 {"ts-TS", "Tsundere, You Baka"},
+                {"uk-UA", "Українська, Україна" }
             }.ToImmutableDictionary();
 
             [NadekoCommand, Usage, Description, Aliases]
             [RequireContext(ContextType.Guild)]
+            [Priority(0)]
             public async Task LanguageSet()
             {
                 var cul = _localization.GetCultureInfo(Context.Guild);
@@ -57,6 +59,7 @@ namespace NadekoBot.Modules.Administration
             [NadekoCommand, Usage, Description, Aliases]
             [RequireContext(ContextType.Guild)]
             [RequireUserPermission(GuildPermission.Administrator)]
+            [Priority(1)]
             public async Task LanguageSet(string name)
             {
                 try

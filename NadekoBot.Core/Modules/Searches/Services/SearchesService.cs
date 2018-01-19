@@ -51,7 +51,6 @@ namespace NadekoBot.Modules.Searches.Services
         public ConcurrentDictionary<ulong, Timer> AutoButtTimers { get; } = new ConcurrentDictionary<ulong, Timer>();
 
         private readonly ConcurrentDictionary<ulong, HashSet<string>> _blacklistedTags = new ConcurrentDictionary<ulong, HashSet<string>>();
-        private readonly Timer _t;
 
         private readonly SemaphoreSlim _cryptoLock = new SemaphoreSlim(1, 1);
         public async Task<CryptoData[]> CryptoData()
@@ -132,22 +131,6 @@ namespace NadekoBot.Modules.Searches.Services
                 return Task.CompletedTask;
             };
 
-            if (client.ShardId == 0)
-            {
-                _t = new Timer(async _ =>
-                {
-                    var r = _cache.Redis.GetDatabase();
-                    try
-                    {
-                        
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Warn(ex);
-                    }
-                }, null, TimeSpan.Zero, TimeSpan.FromHours(1));
-            }
-
             //joke commands
             if (File.Exists("data/wowjokes.json"))
             {
@@ -192,11 +175,13 @@ namespace NadekoBot.Modules.Searches.Services
             //avatar 82, 139
             if (data != null)
             {
-                var avatar = Image.Load(data).Resize(85, 85);
-                bg.DrawImage(avatar, 
-                    default, 
-                    new Point(82, 139),
-                    GraphicsOptions.Default);
+                using (var avatar = Image.Load(data).Resize(85, 85))
+                {
+                    bg.DrawImage(avatar,
+                        default,
+                        new Point(82, 139),
+                        GraphicsOptions.Default);
+                }
             }
             //text 63, 241
             bg.DrawText(text, 
@@ -210,11 +195,13 @@ namespace NadekoBot.Modules.Searches.Services
                 });
 
             //flowa
-            var flowers = Image.Load(_imgs.FlowerCircle.ToArray());
-            bg.DrawImage(flowers,
-                default,
-                new Point(0, 0),
-                GraphicsOptions.Default);
+            using (var flowers = Image.Load(_imgs.FlowerCircle.ToArray()))
+            {
+                bg.DrawImage(flowers,
+                    default,
+                    new Point(0, 0),
+                    GraphicsOptions.Default);
+            }
 
             return bg;
         }

@@ -20,14 +20,16 @@ namespace NadekoBot.Modules.Gambling
             private readonly IImageCache _images;
             private readonly IBotConfigProvider _bc;
             private readonly CurrencyService _cs;
-
+            private readonly DbService _db;
             private static readonly NadekoRandom rng = new NadekoRandom();
 
-            public FlipCoinCommands(IDataCache data, CurrencyService cs, IBotConfigProvider bc)
+            public FlipCoinCommands(IDataCache data, CurrencyService cs,
+                IBotConfigProvider bc, DbService db)
             {
                 _images = data.LocalImages;
                 _bc = bc;
                 _cs = cs;
+                _db = db;
             }
 
             [NadekoCommand, Usage, Description, Aliases]
@@ -86,14 +88,25 @@ namespace NadekoBot.Modules.Gambling
             }
 
             [NadekoCommand, Usage, Description, Aliases]
-            public async Task Betflip(int amount, BetFlipGuess guess)
+            public Task Betflip(Allin _, BetFlipGuess guess)
+            {
+                long cur;
+                using (var uow = _db.UnitOfWork)
+                {
+                    cur = uow.DiscordUsers.GetUserCurrency(Context.User.Id);
+                }
+                return Betflip(cur, guess);
+            }
+
+            [NadekoCommand, Usage, Description, Aliases]
+            public async Task Betflip(long amount, BetFlipGuess guess)
             {
                 if (amount < _bc.BotConfig.MinimumBetAmount)
                 {
                     await ReplyErrorLocalized("min_bet_limit", _bc.BotConfig.MinimumBetAmount + _bc.BotConfig.CurrencySign).ConfigureAwait(false);
                     return;
                 }
-                var removed = await _cs.RemoveAsync(Context.User, "Betflip Gamble", amount, false).ConfigureAwait(false);
+                var removed = await _cs.RemoveAsync(Context.User, "Betflip Gamble", amount, false, gamble: true).ConfigureAwait(false);
                 if (!removed)
                 {
                     await ReplyErrorLocalized("not_enough", _bc.BotConfig.CurrencyPluralName).ConfigureAwait(false);
@@ -117,7 +130,7 @@ namespace NadekoBot.Modules.Gambling
                 { 
                     var toWin = (int)Math.Round(amount * _bc.BotConfig.BetflipMultiplier);
                     str = Context.User.Mention + " " + GetText("flip_guess", toWin + _bc.BotConfig.CurrencySign);
-                    await _cs.AddAsync(Context.User, "Betflip Gamble", toWin, false).ConfigureAwait(false);
+                    await _cs.AddAsync(Context.User, "Betflip Gamble", toWin, false, gamble:true).ConfigureAwait(false);
                 }
                 else
                 {

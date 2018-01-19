@@ -15,16 +15,31 @@ namespace NadekoBot.Modules.Gambling
         {
             private readonly CurrencyService _cs;
             private readonly IBotConfigProvider _bc;
+            private readonly DbService _db;
 
-            public WheelOfFortuneCommands(CurrencyService cs, IBotConfigProvider bc)
+            public WheelOfFortuneCommands(CurrencyService cs, IBotConfigProvider bc,
+                DbService db)
             {
                 _cs = cs;
                 _bc = bc;
+                _db = db;
+            }
+
+            public enum Allin { Allin = int.MinValue, All = int.MinValue }
+
+            [NadekoCommand, Usage, Description, Aliases]
+            public Task WheelOfFortune(Allin _)
+            {
+                long cur;
+                using (var uow = _db.UnitOfWork)
+                {
+                    cur = uow.DiscordUsers.GetUserCurrency(Context.User.Id);
+                }
+                return WheelOfFortune(cur);
             }
 
             [NadekoCommand, Usage, Description, Aliases]
-            [RequireContext(ContextType.Guild)]
-            public async Task WheelOfFortune(int bet)
+            public async Task WheelOfFortune(long bet)
             {
                 const int minBet = 10;
                 if (bet < minBet)
@@ -33,7 +48,7 @@ namespace NadekoBot.Modules.Gambling
                     return;
                 }
 
-                if (!await _cs.RemoveAsync(Context.User.Id, "Wheel Of Fortune - bet", bet).ConfigureAwait(false))
+                if (!_cs.Remove(Context.User.Id, "Wheel Of Fortune - bet", bet, gamble: true))
                 {
                     await ReplyErrorLocalized("not_enough", _bc.BotConfig.CurrencySign).ConfigureAwait(false);
                     return;
@@ -44,7 +59,7 @@ namespace NadekoBot.Modules.Gambling
                 var amount = (int)(bet * wof.Multiplier);
 
                 if (amount > 0)
-                    await _cs.AddAsync(Context.User.Id, "Wheel Of Fortune - won", amount).ConfigureAwait(false);
+                    await _cs.AddAsync(Context.User.Id, "Wheel Of Fortune - won", amount, gamble: true).ConfigureAwait(false);
 
                 await Context.Channel.SendConfirmAsync(
 Format.Bold($@"{Context.User.ToString()} won: {amount + _bc.BotConfig.CurrencySign}
