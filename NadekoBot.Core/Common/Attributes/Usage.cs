@@ -1,14 +1,15 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Discord.Commands;
 using NadekoBot.Core.Services.Impl;
-using System.Linq;
-using Discord;
+using Newtonsoft.Json;
 
 namespace NadekoBot.Common.Attributes
 {
-    public class Usage : RemarksAttribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class UsageAttribute : RemarksAttribute
     {
-        public Usage([CallerMemberName] string memberName="") : base(Usage.GetUsage(memberName))
+        public UsageAttribute([CallerMemberName] string memberName="") : base(UsageAttribute.GetUsage(memberName))
         {
 
         }
@@ -16,8 +17,7 @@ namespace NadekoBot.Common.Attributes
         public static string GetUsage(string memberName)
         {
             var usage = Localization.LoadCommand(memberName.ToLowerInvariant()).Usage;
-            return string.Join(" or ", usage
-                .Select(x => Format.Code(x)));
+            return JsonConvert.SerializeObject(usage);
         }
     }
 }

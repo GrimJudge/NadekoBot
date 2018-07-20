@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using NadekoBot.Extensions;
 using System;
 using System.Linq;
@@ -29,12 +28,12 @@ namespace NadekoBot.Modules.Administration
                     .ToArray();
                 var timezonesPerPage = 20;
 
-                await Context.Channel.SendPaginatedConfirmAsync((DiscordSocketClient)Context.Client, page, 
+                await Context.SendPaginatedConfirmAsync(page, 
                     (curPage) => new EmbedBuilder()
                         .WithOkColor()
                         .WithTitle(GetText("timezones_available"))
                         .WithDescription(string.Join("\n", timezones.Skip(curPage * timezonesPerPage).Take(timezonesPerPage).Select(x => $"`{x.Id,-25}` {(x.BaseUtcOffset < TimeSpan.Zero? "-" : "+")}{x.BaseUtcOffset:hhmm}"))),
-                    timezones.Length, timezonesPerPage);
+                    timezones.Length, timezonesPerPage).ConfigureAwait(false);
             }
 
             [NadekoCommand, Usage, Description, Aliases]
@@ -50,13 +49,13 @@ namespace NadekoBot.Modules.Administration
                 TimeZoneInfo tz;
                 try { tz = TimeZoneInfo.FindSystemTimeZoneById(id); } catch { tz = null; }
 
-                _service.SetTimeZone(Context.Guild.Id, tz);
 
                 if (tz == null)
                 {
                     await ReplyErrorLocalized("timezone_not_found").ConfigureAwait(false);
                     return;
                 }
+                _service.SetTimeZone(Context.Guild.Id, tz);
 
                 await Context.Channel.SendConfirmAsync(tz.ToString()).ConfigureAwait(false);
             }
